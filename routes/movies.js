@@ -1,26 +1,24 @@
-const express = require('express');
+import express from 'express';
+import Movie from '../models/Movie.js';
+
 const router = express.Router();
-const Movie = require('../models/Movie');
 
-// GET all movies
-router.get('/', async (req, res) => {
-  try {
-    const movies = await Movie.find();
-    res.json(movies);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.post('/api/movies', async (req, res) => {
+  const { title, genre, releaseDate, ratings } = req.body;
 
-// POST a new movie
-router.post('/', async (req, res) => {
   try {
-    const newMovie = new Movie(req.body);
+    const newMovie = new Movie({
+      title,
+      genre,
+      releaseDate,
+      ratings,
+    });
+
     const savedMovie = await newMovie.save();
-    res.json(savedMovie);
+    res.status(201).json(savedMovie);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: 'Error creating movie', error });
   }
 });
 
-module.exports = router;
+export default router;
