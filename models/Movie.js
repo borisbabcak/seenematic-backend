@@ -1,15 +1,17 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
+const { Schema, model } = mongoose;
 
 const MovieSchema = new Schema({
-  title: String,
-  genre: [String],
-  releaseDate: Date,
-  ratings: [Number],
+  title: { type: String, required: true },
+  genre: [{ type: String }],
+  releaseDate: { type: Date, required: true },
+  ratings: [{ type: Number }],
   reviews: [
     {
-      userId: String,
-      review: String,
-      rating: Number,
+      userId: { type: String, required: true },
+      review: { type: String, required: true },
+      rating: { type: Number, required: true },
     },
   ],
 });
