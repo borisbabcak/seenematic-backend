@@ -1,7 +1,7 @@
-import express from 'express';
+import { Router } from 'express';
 import Movie from '../models/Movie.js';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/api/movies', async (req, res) => {
   const { title, genre, releaseDate, ratings } = req.body;

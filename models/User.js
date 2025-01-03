@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       minlength: 6,
     },
+    favouriteGenres:{
+      type: [String],
+      default: []
+    },
   },
   {
     timestamps: true,
