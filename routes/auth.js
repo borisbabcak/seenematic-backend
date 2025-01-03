@@ -1,11 +1,11 @@
-import express from 'express';
+import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import { check, validationResult } from 'express-validator';
 import protect from '../middleware/authMiddleware.js';
 
-const router = express.Router();
+const router = Router();
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -41,7 +41,9 @@ router.post(
         password: hashedPassword,
       });
 
-      res.status(201).json({ message: 'User registered successfully', user });
+      const token = generateToken(user._id);
+
+      res.status(201).json({ message: 'User registered successfully', user, token });
     } catch (error) {
       res.status(500).json({ message: 'Server error', error });
     }
@@ -77,10 +79,8 @@ router.post(
         return res.status(400).json({ message: 'Invalid credentials' });
       }
 
-      console.log('Generating token...');
       const token = generateToken(user._id);
 
-      console.log('Login successful');
       res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
       console.error('Login error:', error);
