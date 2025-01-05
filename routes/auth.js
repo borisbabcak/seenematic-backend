@@ -15,21 +15,37 @@ const generateToken = (id) => {
 router.post(
   '/register',
   [
-    check('name', 'Name is required').not().isEmpty(),
-    check('email', 'Please provide a valid email').isEmail(),
-    check('password', 'Password must be at least 6 characters long').isLength({ min: 6 }),
+    check('name', 'Name is required').not().isEmpty().isLength({min: 3, max: 20}),
+    check('email', 'Please provide a valid email').not().isEmpty().isEmail(),
+    check('password', 'Password must be at least 9 characters long, contain at least one uppercase letter, and one number.')
+  .isLength({ min: 9 })
+  .matches(/(?=.*[A-Z])(?=.*\d)/)
   ],
+
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      const errorMessages = errors.array().map(error => error.msg);
+      return res.status(400).json({ errors: errorMessages });
     }
 
     const { name, email, password } = req.body;
 
+    const bannedWords = ['dumbass', 'idiot', 'moron', 'scumbag', 'jackass', 'loser', 'twat', 'wanker',
+      'bollocks', 'tosser','twat', 'arsehole', 'maggot', 'queer', 'dyke', 'sucker',
+      'bollock', 'crapper', 'rapist', 'chink', 'gypsy', 'nazi', 'fatass','f4ck'];
+    if (bannedWords.some((word) => name.toLowerCase().includes(word))) {
+      return res.status(400).json({ message: 'Name contains inappropriate content.' });
+    }
+
     try {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
+      const existingName = await User.findOne({ name });
+      if (existingName) {
+        return res.status(400).json({ message: 'Name already in use' });
+      }
+
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
         return res.status(400).json({ message: 'Email already in use' });
       }
 
@@ -43,7 +59,11 @@ router.post(
 
       const token = generateToken(user._id);
 
-      res.status(201).json({ message: 'User registered successfully', user, token });
+      res.status(201).json({
+        message: 'User registered successfully',
+        token,
+        user: user.toJSON(),
+      });
     } catch (error) {
       res.status(500).json({ message: 'Server error', error });
     }
@@ -54,14 +74,14 @@ router.post(
 router.post(
   '/login',
   [
-    check('email', 'Please provide a valid email').isEmail(),
+    check('email', 'Please provide a valid email').not().isEmpty().isEmail(),
     check('password', 'Password is required').not().isEmpty(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
-      return res.status(400).json({ errors: errors.array() });
+      const errorMessages = errors.array().map(error => error.msg);
+      return res.status(400).json({ errors: errorMessages });
     }
 
     const { email, password } = req.body;
@@ -69,14 +89,12 @@ router.post(
     try {
       const user = await User.findOne({ email });
       if (!user) {
-        console.log('User not found');
-        return res.status(400).json({ message: 'Invalid credentials' });
+        return res.status(400).json({ message: 'Email not found' });
       }
 
       const isPasswordMatch = await bcrypt.compare(password, user.password);
       if (!isPasswordMatch) {
-        console.log('Passwords do not match');
-        return res.status(400).json({ message: 'Invalid credentials' });
+        return res.status(400).json({ message: 'Invalid password' });
       }
 
       const token = generateToken(user._id);
@@ -88,10 +106,6 @@ router.post(
     }
   }
 );
-
-router.post('/logout', (req, res) => {
-  res.status(200).json({ message: 'Logout successful' });
-});
 
 router.get('/my-profile', protect, (req, res) => {
   res.status(200).json({ user: req.user });
