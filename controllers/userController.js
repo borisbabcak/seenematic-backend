@@ -14,7 +14,7 @@ export async function selectGenres(req, res) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    user.favoriteGenres = genres;
+    user.favouriteGenres = genres;
     await user.save();
 
     return res.status(200).json({ message: 'Genres successfully updated.' });
