@@ -1,9 +1,11 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+dotenv.config();
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +19,7 @@ const routePath = path.join(__dirname, 'routes');
 fs.readdirSync(routePath).forEach((file) => {
     if (file.endsWith('.js')) {
       import(`./routes/${file}`).then((routeModule) => {
-        const routeName = file.replace('.js', '');
+        const routeName = file.replace('Routes.js', '').replace('.js', '');
         app.use(`/api/${routeName}`, routeModule.default);
         console.log(`Route registered: /api/${routeName}`);
       });
