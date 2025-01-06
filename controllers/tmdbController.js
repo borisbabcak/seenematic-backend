@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const tmdbBaseUrl = 'https://api.themoviedb.org/3';
+const tmdbBaseUrl = process.env.TMDB_BASE_URL;
 const apiKey = process.env.TMDB_API_KEY;
 
 // Get genres for movies
