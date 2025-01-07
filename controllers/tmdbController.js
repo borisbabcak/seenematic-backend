@@ -42,20 +42,50 @@ export const getLatestMovies = async (req, res) => {
   }
 };
 
+
+
 // Search for movies by title
 export const searchMovies = async (req, res) => {
-  const { query } = req.query;
+  const { query, page } = req.query;
+
   if (!query) {
     return res.status(400).json({ message: 'Query parameter is required' });
   }
+
   try {
-    const response = await axios.get(`${tmdbBaseUrl}/search/movie`, {
-      params: { api_key: apiKey, language: 'en-US', query },
-    });
+    const params = {
+      api_key: apiKey,
+      language: 'en-US',
+      query: query || '',
+      page: page || 1,
+    };
+
+    const response = await axios.get(`${tmdbBaseUrl}/search/movie`, { params });
     res.status(200).json(response.data.results);
   } catch (error) {
-    console.error('Error searching for movies:', error.message);
-    res.status(500).json({ message: 'Failed to search for movies' });
+    console.error('Error searching movies:', error.message);
+    res.status(500).json({ message: 'Failed to search movies' });
+  }
+};
+
+// Discover movies with flexible filters
+export const discoverMovies = async (req, res) => {
+  const { genre, sortBy, page } = req.query;
+
+  try {
+    const params = {
+      api_key: apiKey,
+      language: 'en-US',
+      with_genres: genre || '', // Filter by genre if provided
+      sort_by: sortBy || 'popularity.desc', // Default sorting by popularity
+      page: page || 1, // Default to page 1
+    };
+
+    const response = await axios.get(`${tmdbBaseUrl}/discover/movie`, { params });
+    res.status(200).json(response.data.results);
+  } catch (error) {
+    console.error('Error discovering movies:', error.message);
+    res.status(500).json({ message: 'Failed to discover movies' });
   }
 };
 
