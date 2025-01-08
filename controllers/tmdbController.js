@@ -42,8 +42,6 @@ export const getLatestMovies = async (req, res) => {
   }
 };
 
-
-
 // Search for movies by title
 export const searchMovies = async (req, res) => {
   const { query, page } = req.query;
