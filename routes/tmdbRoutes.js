@@ -12,13 +12,13 @@ import {
 
 const router = express.Router();
 
-router.get('/genres', getGenres);
-router.get('/trending', getTrendingMovies);
-router.get('/latest', getLatestMovies);
-router.get('/search', searchMovies); //by movie name/title
-router.get('/discover', discoverMovies); //flexible filtering
-router.get('/movie/:movieId/trailers', getMovieTrailers);
-router.get('/movie/:movieId/images', getMovieImages);
-router.get('/movie/:movieId', getMovieDetails);
+router.get('/genres', getGenres); //Get list of genres with their ID
+router.get('/trending', getTrendingMovies); //Get trending movies
+router.get('/latest', getLatestMovies); //Get latest movies
+router.get('/search', searchMovies); //Search movie by name/title
+router.get('/discover', discoverMovies); //Flexible filtering
+router.get('/movie/:movieId/trailers', getMovieTrailers); //Get trailers of a movie
+router.get('/movie/:movieId/images', getMovieImages); //Get images of a movie
+router.get('/movie/:movieId', getMovieDetails); //Get details of a movie
 
 export default router;
