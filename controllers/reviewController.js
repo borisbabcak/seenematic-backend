@@ -32,7 +32,9 @@ export const addReview = async (req, res) => {
             authorTag: '(Seenematic User)',
             content: review.content,
             created_at: review.created_at,
-            author_details: review.author_details
+            author_details: review.author_details,
+            movie_name: review.movie_name,
+            movie_id: review.movie_id
         }
       });
   } catch (error) {
