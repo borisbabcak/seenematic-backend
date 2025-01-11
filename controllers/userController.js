@@ -1,25 +1,73 @@
-import User from '../models/User.js';
+import userService from '../services/userService.js';
 
-export async function selectGenres(req, res) {
+// Update genres
+export const selectGenres = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { genres } = req.body;
-
-    if (!genres || genres.length < 2 || genres.length > 3) {
-      return res.status(400).json({ message: 'You must select 2 to 3 genres.' });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    user.favouriteGenres = genres;
-    await user.save();
-
-    return res.status(200).json({ message: 'Genres successfully updated.' });
+      const result = await userService.updateFavoriteGenres(req.user.id, req.body.genres);
+      res.status(200).json(result);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'An error occurred.' });
+      console.error('Error updating genres:', error);
+      res.status(400).json({ 
+          success: false, 
+          message: error.message 
+      });
   }
-}
+};
+
+// Add movie to a favourite list
+export const addFavoriteMovie = async (req, res) => {
+  try {
+      const { movieId } = req.params;
+      const result = await userService.addFavoriteMovie(req.user.id, movieId);
+      res.status(200).json(result);
+  } catch (error) {
+      console.error('Error adding favorite movie:', error);
+      res.status(400).json({ 
+          success: false, 
+          message: error.message 
+      });
+  }
+};
+
+// Remove movie from favourites
+export const removeFavoriteMovie = async (req, res) => {
+  try {
+      const { movieId } = req.params;
+      const result = await userService.removeFavoriteMovie(req.user.id, movieId);
+      res.status(200).json(result);
+  } catch (error) {
+      console.error('Error removing favorite movie:', error);
+      res.status(400).json({ 
+          success: false, 
+          message: error.message 
+      });
+  }
+};
+
+// Get favourite movies
+export const getFavoriteMovies = async (req, res) => {
+  try {
+      const result = await userService.getFavoriteMovies(req.user.id);
+      res.status(200).json(result);
+  } catch (error) {
+      console.error('Error fetching favorite movies:', error);
+      res.status(400).json({ 
+          success: false, 
+          message: error.message 
+      });
+  }
+};
+
+// Checks if username is available
+export const checkUsername = async (req, res) => {
+  try {
+      const result = await userService.isUsernameAvailable(req.query.username);
+      res.status(200).json(result);
+  } catch (error) {
+      console.error('Error checking username:', error);
+      res.status(400).json({ 
+          success: false, 
+          message: error.message 
+      });
+  }
+};
