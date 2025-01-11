@@ -1,140 +1,95 @@
-import axios from 'axios';
-
-const tmdbBaseUrl = process.env.TMDB_BASE_URL;
-const apiKey = process.env.TMDB_API_KEY;
+import tmdbService from '../services/tmdbService.js';
 
 // Get genres for movies
 export const getGenres = async (req, res) => {
   try {
-    const response = await axios.get(`${tmdbBaseUrl}/genre/movie/list`, {
-      params: { api_key: apiKey, language: 'en-US' },
-    });
-    res.status(200).json(response.data.genres);
+      const genres = await tmdbService.getGenres();
+      res.status(200).json(genres);
   } catch (error) {
-    console.error('Error fetching genres:', error.message);
-    res.status(500).json({ message: 'Failed to fetch genres' });
+      console.error('Error fetching genres:', error);
+      res.status(500).json({ message: error.message });
   }
 };
 
 // Get trending movies by last week
 export const getTrendingMovies = async (req, res) => {
   try {
-    const response = await axios.get(`${tmdbBaseUrl}/trending/movie/week`, {
-      params: { api_key: apiKey, language: 'en-US' },
-    });
-    res.status(200).json(response.data.results);
+      const movies = await tmdbService.getTrendingMovies();
+      res.status(200).json(movies);
   } catch (error) {
-    console.error('Error fetching trending movies:', error.message);
-    res.status(500).json({ message: 'Failed to fetch trending movies' });
+      console.error('Error fetching trending movies:', error);
+      res.status(500).json({ message: error.message });
   }
 };
 
 // Get latest movies
 export const getLatestMovies = async (req, res) => {
   try {
-    const response = await axios.get(`${tmdbBaseUrl}/movie/now_playing`, {
-      params: { api_key: apiKey, language: 'en-US', page: req.query.page || 1, },
-    });
-    res.status(200).json(response.data.results);
+      const { page } = req.query;
+      const movies = await tmdbService.getLatestMovies(page);
+      res.status(200).json(movies);
   } catch (error) {
-    console.error('Error fetching latest movies:', error.message);
-    res.status(500).json({ message: 'Failed to fetch latest movies' });
+      console.error('Error fetching latest movies:', error);
+      res.status(500).json({ message: error.message });
   }
 };
 
 // Search for movies by title
 export const searchMovies = async (req, res) => {
-  const { query, page } = req.query;
-
-  if (!query) {
-    return res.status(400).json({ message: 'Query parameter is required' });
-  }
-
   try {
-    const params = {
-      api_key: apiKey,
-      language: 'en-US',
-      query: query || '',
-      page: page || 1,
-    };
-
-    const response = await axios.get(`${tmdbBaseUrl}/search/movie`, { params });
-    res.status(200).json(response.data.results);
+      const { query, page } = req.query;
+      const movies = await tmdbService.searchMovies(query, page);
+      res.status(200).json(movies);
   } catch (error) {
-    console.error('Error searching movies:', error.message);
-    res.status(500).json({ message: 'Failed to search movies' });
+      console.error('Error searching movies:', error);
+      res.status(500).json({ message: error.message });
   }
 };
 
 // Discover movies with flexible filters
 export const discoverMovies = async (req, res) => {
-  const { genre, sortBy, page } = req.query;
-
   try {
-    const params = {
-      api_key: apiKey,
-      language: 'en-US',
-      with_genres: genre || '', // Filter by genre if provided
-      sort_by: sortBy || 'popularity.desc', // Default sorting by popularity
-      page: page || 1, // Default to page 1
-    };
-
-    const response = await axios.get(`${tmdbBaseUrl}/discover/movie`, { params });
-    res.status(200).json(response.data.results);
+      const { genre, sortBy, page } = req.query;
+      const movies = await tmdbService.discoverMovies({ genre, sortBy, page });
+      res.status(200).json(movies);
   } catch (error) {
-    console.error('Error discovering movies:', error.message);
-    res.status(500).json({ message: 'Failed to discover movies' });
+      console.error('Error discovering movies:', error);
+      res.status(500).json({ message: error.message });
   }
 };
 
 // Get trailers for a specific movie
 export const getMovieTrailers = async (req, res) => {
-    const { movieId } = req.params;
-    if (!movieId) {
-      return res.status(400).json({ message: 'Movie ID is required' });
-    }
-    try {
-      const response = await axios.get(`${tmdbBaseUrl}/movie/${movieId}/videos`, {
-        params: { api_key: apiKey, language: 'en-US',},
-      });
-      res.status(200).json(response.data.results);
-    } catch (error) {
-      console.error('Error fetching movie trailers:', error.message);
-      res.status(500).json({ message: 'Failed to fetch movie trailers' });
-    }
-  };
+  try {
+      const { movieId } = req.params;
+      const trailers = await tmdbService.getMovieTrailers(movieId);
+      res.status(200).json(trailers);
+  } catch (error) {
+      console.error('Error fetching movie trailers:', error);
+      res.status(500).json({ message: error.message });
+  }
+}
 
 // Get images for a specific movie
 export const getMovieImages = async (req, res) => {
-    const { movieId } = req.params;
-    try {
-        const response = await axios.get(`${tmdbBaseUrl}/movie/${movieId}/images`, {
-            params: { 
-                api_key: apiKey,
-                language: 'en-US',
-                include_image_language: 'en,null'
-            },
-        });
-        res.status(200).json(response.data);
-    } catch (error) {
-        console.error('Error fetching movie images:', error.message);
-        res.status(500).json({ message: 'Failed to fetch movie images', error: error.message });
-    }
+  try {
+      const { movieId } = req.params;
+      const images = await tmdbService.getMovieImages(movieId);
+      res.status(200).json(images);
+  } catch (error) {
+      console.error('Error fetching movie images:', error);
+      res.status(500).json({ message: error.message });
+  }
 };
 
 // Get movie details
 export const getMovieDetails = async (req, res) => {
-    const { movieId } = req.params;
-    try {
-        const response = await axios.get(`${tmdbBaseUrl}/movie/${movieId}`, {
-            params: { 
-                api_key: apiKey,
-                language: 'en-US'
-            },
-        });
-        res.status(200).json(response.data);
-    } catch (error) {
-        console.error('Error fetching movie details:', error.message);
-        res.status(500).json({ message: 'Failed to fetch movie details', error: error.message });
-    }
+  try {
+      const { movieId } = req.params;
+      const details = await tmdbService.getMovieDetails(movieId);
+      res.status(200).json(details);
+  } catch (error) {
+      console.error('Error fetching movie details:', error);
+      res.status(500).json({ message: error.message });
+  }
 };

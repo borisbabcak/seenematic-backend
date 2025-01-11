@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    favoriteMovies: {
+      type: [String],
+      default: []
+    }
   },
   {
     timestamps: true,
