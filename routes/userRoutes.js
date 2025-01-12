@@ -5,7 +5,8 @@ import {
     removeFavoriteMovie,
     getFavoriteMovies 
 } from '../controllers/userController.js';
-import authMiddleware from '../middleware/authMiddleware.js';
+import authMiddleware, { protect } from '../middleware/authMiddleware.js';
+import { getRecommendedMovies } from '../controllers/userController.js';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.post('/select-genres', authMiddleware, selectGenres);
 router.post('/favorites/:movieId', authMiddleware, addFavoriteMovie);
 router.delete('/favorites/:movieId', authMiddleware, removeFavoriteMovie);
 router.get('/favorites', authMiddleware, getFavoriteMovies);
+router.get('/recommended', authMiddleware, getRecommendedMovies);
 
 export default router;

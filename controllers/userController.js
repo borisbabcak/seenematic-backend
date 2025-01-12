@@ -1,4 +1,19 @@
 import userService from '../services/userService.js';
+import recommendationService from '../services/recommendationService.js';
+
+// Fetch recommended movies
+export const getRecommendedMovies = async (req, res) => {
+    try {
+        const result = await recommendationService.getRecommendedMovies(req.user.id);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching recommended movies:', error);
+        res.status(400).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+  };
 
 // Update genres
 export const selectGenres = async (req, res) => {
